@@ -1,0 +1,7 @@
+language python
+
+find_replace_imports(list=[
+  [`langchain_community.llms.anthropic`, `Anthropic`, `langchain_anthropic`, `Anthropic`],
+  [`anthropic_place`, `EpicLinguist`, `new_anthropic_place`, `SauceLinguist`],
+  [`langchain_community.chat_models`, `MyLittleModel`, `extra_lc_models`, `MyBigModel`]
+])
