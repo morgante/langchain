@@ -10,6 +10,9 @@ from langchain_cli.namespaces.migrate.generate.generic import (
 from langchain_cli.namespaces.migrate.generate.partner import (
     get_migrations_for_partner_package,
 )
+from langchain_cli.namespaces.migrate.generate.grit import (
+    dump_migrations_as_grit,
+)
 
 
 @click.group()
@@ -37,16 +40,34 @@ def cli():
     default=True,
     help="Output file for the migration script.",
 )
-def generic(pkg1: str, pkg2: str, output: str, filter_by_all: bool) -> None:
+@click.option(
+    "--format",
+    type=click.Choice(["json", "grit"], case_sensitive=False),
+    default="json",
+    help="The output format for the migration script (json or grit).",
+)
+def generic(pkg1: str, pkg2: str, output: str, filter_by_all: bool, format: str) -> None:
     """Generate a migration script."""
     click.echo("Migration script generated.")
     migrations = generate_simplified_migrations(pkg1, pkg2, filter_by_all=filter_by_all)
 
+    if output is not None:
+        name = output.removesuffix(".json").removesuffix(".grit")
+    else:
+        name = f"{pkg1}_to_{pkg2}"
+
     if output is None:
-        output = f"{pkg1}_to_{pkg2}.json"
+        output = f"{name}.json" if format == "json" else f"{name}.grit"
+
+    if format == "json":
+        dumped = json.dumps(migrations, indent=2, sort_keys=True)
+    else:
+        dumped = dump_migrations_as_grit(name, migrations)
+
+    print(dumped)
 
     with open(output, "w") as f:
-        f.write(json.dumps(migrations, indent=2, sort_keys=True))
+        f.write(dumped)
 
 
 @cli.command()
