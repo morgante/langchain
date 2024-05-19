@@ -1,0 +1,6 @@
+language python
+
+find_replace_imports(list=[
+  [`langchain_community.llms.anthropic`, `Anthropic`, `langchain_anthropic`, `Anthropic`],
+  [`langchain_community.callbacks.tracers`, `LangChainTracer`, `langchain_core.tracers`, `LangChainTracer`],
+])
