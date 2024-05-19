@@ -7,7 +7,6 @@ from typing_extensions import Annotated
 from langchain_cli.namespaces import app as app_namespace
 from langchain_cli.namespaces import integration as integration_namespace
 from langchain_cli.namespaces import template as template_namespace
-from langchain_cli.namespaces.migrate2 import main as migrate2_namespace
 from langchain_cli.utils.packages import get_langserve_export, get_package_root
 
 __version__ = "0.0.22rc0"
@@ -22,18 +21,10 @@ app.add_typer(
     name="integration",
     help=integration_namespace.__doc__,
 )
-app.add_typer(
-    migrate2_namespace.migrate_cli,
-    name="migrate2",
-    help=migrate2_namespace.__doc__,
-)
 
+from langchain_cli.namespaces.migrate import main as migrate_namespace
 
-# If libcst is installed, add the migrate namespace
-if importlib.util.find_spec("libcst"):
-    from langchain_cli.namespaces.migrate import main as migrate_namespace
-
-    app.add_typer(migrate_namespace.app, name="migrate", help=migrate_namespace.__doc__)
+app.add_typer(migrate_namespace.migrate_cli, name="migrate", help=migrate_namespace.__doc__)
 
 
 def version_callback(show_version: bool) -> None:
