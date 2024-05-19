@@ -64,10 +64,23 @@ def generic(pkg1: str, pkg2: str, output: str, filter_by_all: bool, format: str)
     else:
         dumped = dump_migrations_as_grit(name, migrations)
 
-    print(dumped)
-
     with open(output, "w") as f:
         f.write(dumped)
+
+
+def handle_partner(pkg: str, output: str = None):
+    migrations = get_migrations_for_partner_package(pkg)
+    # Run with python 3.9+
+    name = pkg.removeprefix('langchain_')
+    data = dump_migrations_as_grit(name, migrations)
+    output_name = f"{name}.grit" if output is None else output
+    if migrations:
+        with open(output_name, "w") as f:
+            f.write(data)
+        click.secho(f"LangChain migration script saved to {output_name}")
+    else:
+        click.secho(f"No migrations found for {pkg}", fg="yellow")
+
 
 
 @cli.command()
@@ -76,21 +89,13 @@ def generic(pkg1: str, pkg2: str, output: str, filter_by_all: bool, format: str)
 def partner(pkg: str, output: str) -> None:
     """Generate migration scripts specifically for LangChain modules."""
     click.echo("Migration script for LangChain generated.")
-    migrations = get_migrations_for_partner_package(pkg)
-    # Run with python 3.9+
-    output_name = f"{pkg.removeprefix('langchain_')}.json" if output is None else output
-    if migrations:
-        with open(output_name, "w") as f:
-            f.write(json.dumps(migrations, indent=2, sort_keys=True))
-        click.secho(f"LangChain migration script saved to {output_name}")
-    else:
-        click.secho(f"No migrations found for {pkg}", fg="yellow")
+    handle_partner(pkg, output)
 
 
 @cli.command()
 def all_installed_partner_pkgs() -> None:
     """Generate migration scripts for all LangChain modules."""
-    # Will generate migrations for all pather packages.
+    # Will generate migrations for all partner packages.
     # Define as "langchain_<partner_name>".
     # First let's determine which packages are installed in the environment
     # and then generate migrations for them.
@@ -101,15 +106,7 @@ def all_installed_partner_pkgs() -> None:
         and name not in {"langchain_core", "langchain_cli", "langchain_community"}
     ]
     for pkg in langchain_pkgs:
-        migrations = get_migrations_for_partner_package(pkg)
-        # Run with python 3.9+
-        output_name = f"{pkg.removeprefix('langchain_')}.json"
-        if migrations:
-            with open(output_name, "w") as f:
-                f.write(json.dumps(migrations, indent=2, sort_keys=True))
-            click.secho(f"LangChain migration script saved to {output_name}")
-        else:
-            click.secho(f"No migrations found for {pkg}", fg="yellow")
+        handle_partner(pkg)
 
 
 if __name__ == "__main__":
