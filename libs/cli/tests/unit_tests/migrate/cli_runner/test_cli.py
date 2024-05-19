@@ -10,7 +10,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from langchain_cli.namespaces.migrate.main import app
+from langchain_cli.namespaces.migrate.main import migrate_cli as app
 from tests.unit_tests.migrate.cli_runner.cases import before, expected
 from tests.unit_tests.migrate.cli_runner.folder import Folder
 
